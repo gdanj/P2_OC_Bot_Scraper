@@ -1,8 +1,22 @@
 import requests
+from math import ceil
 from scrapy.selector import Selector
 
-url = "https://books.toscrape.com/catalogue/category/books/add-a-comment_18/index.html"
+url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
+
+def pageNbr(response):
+    """Retourne un Int du nombre de résultats possède cette catégorie,
+    en divisant le numbre de livre total par le numbre de vivre par page"""
+    articlesNbrUrl = "#default > div > div > div > div > form > strong:nth-child(2)" + "::text"
+    return ceil(int(Selector(text=response.text).css(articlesNbrUrl).get()) / 20)
+
+def categoriScrap(response):
+    """Retourne une List de Str comtenant les urls de chaque livre."""
+
+    urlAllBooks = "div:nth-child(2) > ol > li > article > div.image_container > a::attr(href)"
+    return Selector(text=response.text).css(urlAllBooks).getall()
+
 response = requests.get(url)
-articlesNbrUrl = "#default > div > div > div > div > form > strong:nth-child(2)" + "::text"
-urlAllBooks = "div:nth-child(2) > ol > li > article > div.image_container > a::attr(href)"
-print(int(Selector(text=response.text).css(articlesNbrUrl).getall()[0]) / 20)
+
+print(pageNbr(response))
+print(categoriScrap(response))
