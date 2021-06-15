@@ -16,7 +16,15 @@ def categoriScrap(response):
     urlAllBooks = "div:nth-child(2) > ol > li > article > div.image_container > a::attr(href)"
     return Selector(text=response.text).css(urlAllBooks).getall()
 
+def categoriList(response):
+    """Retourne une List de Str contenant chaque url des categories"""
+    urlAllCategory = ".nav > li:nth-child(1) > ul:nth-child(2) > li > a:nth-child(1)::attr(href)"
+    return Selector(text=response.text).css(urlAllCategory).getall()
+
+
 response = requests.get(url)
 
 print(pageNbr(response))
-print(categoriScrap(response))
+print("\n")
+print("\n")
+print(categoriList(response))
