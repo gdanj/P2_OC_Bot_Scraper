@@ -21,10 +21,26 @@ def categoriList(response):
     urlAllCategory = ".nav > li:nth-child(1) > ul:nth-child(2) > li > a:nth-child(1)::attr(href)"
     return Selector(text=response.text).css(urlAllCategory).getall()
 
+def formatUrl(url):
+    """Retourne une url valide"""
+    result = url
+    if "../" in url:
+        result = url.split("../")[-1]
+
+    if "books/" in url:
+        result = "https://books.toscrape.com/catalogue/category/" + result.replace("index.html", "page-1.html")
+
+    if "../../" in url:
+        result = "https://books.toscrape.com/catalogue/" + result
+
+    return result
+
+
 
 response = requests.get(url)
 
 print(pageNbr(response))
 print("\n")
+print(formatUrl(categoriScrap(response)[2]))
 print("\n")
-print(categoriList(response))
+print(formatUrl(categoriList(response)[2]))
