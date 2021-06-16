@@ -49,11 +49,8 @@ def nestPage(url, totalPageNbr):
         currentPageNbr = 1
     else:
         currentPageNbr = int(url.split("/")[-1].replace("page-","").replace(".html", ""))
-
-    if currentPageNbr < totalPageNbr:
-        return url.replace("page-" + str(currentPageNbr) + ".html", "page-" + str(currentPageNbr + 1) + ".html")
-    else:
-        return ""
+    
+    return url.replace("page-" + str(currentPageNbr) + ".html", "page-" + str(currentPageNbr + 1) + ".html")
 
 
 def allCategoryUrl(categoriUrl):
@@ -71,6 +68,31 @@ def allCategoryUrl(categoriUrl):
         i += 1
     return result
 
+def bookScraper(url):
+    """Récupère les information sur la page produit et retourne une list"""
+
+    response = requests.get(url)
+    universal_product_code = ""
+    title = "#content_inner > article > div.row > div.col-sm-6.product_main > h1::text"
+    price_including_tax = ""
+    price_excluding_tax = ""
+    number_available = ""
+    product_description = ""
+    category = ""
+    review_rating = ""
+    image_url = ""
+    """Selector(text=response.text).css(universal_product_code).get(), Selector(text=response.text).css(title).get(), Selector(text=response.text).css(price_including_tax).get(), Selector(text=response.text).css(price_excluding_tax).get(), Selector(text=response.text).css(number_available).get(), Selector(text=response.text).css(product_description).get(), Selector(text=response.text).css(category).get(), Selector(text=response.text).css(review_rating).get(), Selector(text=response.text).css(image_url).get(),"""
+    return [
+        url,
+        Selector(text=response.text).css(title).get()
+    ]
+
+def booksIteration(listBooks):
+    """Fait un csv avec les url de la list passé en parametre"""
+
+    for bookUrl in listBooks:
+        print(bookScraper(formatUrl(bookUrl)))
+
 
 def main():
     url = "https://books.toscrape.com/index.html"
@@ -78,7 +100,9 @@ def main():
     response = requests.get(url)
     listCategoryUrl = categoriList(response)
     for categoriUrl in listCategoryUrl:
-        allCategoryUrl(categoriUrl)
-    
-    
+        resultCategori = allCategoryUrl(categoriUrl)
+        booksIteration(resultCategori)
+
+
+
 main()
