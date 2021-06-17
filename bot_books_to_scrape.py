@@ -111,7 +111,7 @@ def createCSV(data, categoriName):
 
     header = [ "product_page_url", "universal_ product_code (upc)", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url", ]
     csv = pd.DataFrame(data, columns=header)
-    csv.to_csv(categoriName + '.csv')
+    csv.to_csv(categoriName + '.csv', index=False)
 
 
 
@@ -119,9 +119,11 @@ def booksIteration(listBooks, categoriUrl):
     """Fait un csv avec les url de la list passé en parametre"""
     categoriName = categoriUrl.split("/")[3].split("_")[0]
     data = []
+    print("Scraping de la catégorie " + categoriName + ".")
     for bookUrl in listBooks:
         data.append(bookScraper(formatUrl(bookUrl)))
         createCSV(data, categoriName)
+    print("Création de CSV " + categoriName + ".")
 
 def main():
     url = "https://books.toscrape.com/index.html"
