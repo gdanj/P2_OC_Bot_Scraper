@@ -5,10 +5,6 @@ import re
 import pandas as pd
 from subprocess import call
 
-
-
-
-
 def pageNbr(response):
     """Retourne un Int du nombre de résultats possède cette catégorie,
     en divisant le numbre de livre total par le numbre de vivre par page"""
@@ -16,20 +12,17 @@ def pageNbr(response):
     articlesNbrUrl = "#default > div > div > div > div > form > strong:nth-child(2)" + "::text"
     return ceil(int(Selector(text=response.text).css(articlesNbrUrl).get()) / 20)
 
-
 def scrapAllBooks(response):
     """Retourne une List de Str comtenant les urls de chaque livre."""
 
     urlAllBooks = "div:nth-child(2) > ol > li > article > div.image_container > a::attr(href)"
     return Selector(text=response.text).css(urlAllBooks).getall()
 
-
 def categoriList(response):
     """Retourne une List de Str contenant chaque url des categories"""
 
     urlAllCategory = ".nav > li:nth-child(1) > ul:nth-child(2) > li > a:nth-child(1)::attr(href)"
     return Selector(text=response.text).css(urlAllCategory).getall()
-
 
 def formatUrl(url):
     """Retourne une url valide"""
@@ -105,7 +98,6 @@ def bookScraper(url):
         formatUrl(Selector(text=response.text).css(image_url).get())
     ]
 
-
 def createCSV(data, categoriName):
     """Crée un fichier csv à partir de la List de List 'data' nommé par la variable 'categoriName',
     si le fichier existe déjà il sera remplacé"""
@@ -113,8 +105,6 @@ def createCSV(data, categoriName):
     header = [ "product_page_url", "universal_ product_code (upc)", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url", ]
     csv = pd.DataFrame(data, columns=header)
     csv.to_csv("CSV/"+categoriName + '.csv', index=False)
-
-
 
 def booksIteration(listBooks, categoriUrl):
     """Fait un csv avec les url de la list passé en parametre"""
