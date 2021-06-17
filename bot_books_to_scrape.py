@@ -1,10 +1,11 @@
 import requests
 from math import ceil
-from requests.api import head
 from scrapy.selector import Selector
-from pprintpp import pprint
 import re
 import pandas as pd
+from subprocess import call
+
+
 
 
 
@@ -95,8 +96,8 @@ def bookScraper(url):
         url,
         Selector(text=response.text).css(universal_product_code).get(),
         Selector(text=response.text).css(title).get(),
-        Selector(text=response.text).css(price_including_tax).get(),
-        Selector(text=response.text).css(price_excluding_tax).get(),
+        Selector(text=response.text).css(price_including_tax).get().replace("Â", ""),
+        Selector(text=response.text).css(price_excluding_tax).get().replace("Â", ""),
         re.search(r'[+-]?\b[0-9]+\b', Selector(text=response.text).css(number_available).get()).group(0),
         Selector(text=response.text).css(product_description).get(),
         Selector(text=response.text).css(category).get(),
@@ -111,7 +112,7 @@ def createCSV(data, categoriName):
 
     header = [ "product_page_url", "universal_ product_code (upc)", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url", ]
     csv = pd.DataFrame(data, columns=header)
-    csv.to_csv(categoriName + '.csv', index=False)
+    csv.to_csv("CSV/"+categoriName + '.csv', index=False)
 
 
 
@@ -130,6 +131,7 @@ def main():
 
     response = requests.get(url)
     listCategoryUrl = categoriList(response)
+    call(['mkdir', '-p', 'CSV'])
     for categoriUrl in listCategoryUrl:
         resultCategori = allCategoryUrl(categoriUrl)
         booksIteration(resultCategori, categoriUrl)
