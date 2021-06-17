@@ -1,6 +1,11 @@
 import requests
 from math import ceil
+from requests.api import head
 from scrapy.selector import Selector
+from pprintpp import pprint
+import re
+import pandas as pd
+
 
 
 def pageNbr(response):
@@ -29,6 +34,10 @@ def formatUrl(url):
     """Retourne une url valide"""
 
     result = url
+
+    if "media" in url:
+        return url.replace("../../", "https://books.toscrape.com/")
+
     if "../" in url:
         result = url.split("../")[-1]
 
@@ -41,7 +50,7 @@ def formatUrl(url):
     return result
 
 
-def nestPage(url, totalPageNbr):
+def nestPage(url):
     """Retourne un Str de l'url de la page de résultat suivant, ou un de str vide si il n'y a pas de page suivant"""
 
     if "index.html" in url:
@@ -64,7 +73,7 @@ def allCategoryUrl(categoriUrl):
     while i < totalPageNbr:
         response = requests.get(currentPageUrl)
         result += scrapAllBooks(response)
-        currentPageUrl = formatUrl(nestPage(categoriUrl, totalPageNbr))
+        currentPageUrl = formatUrl(nestPage(categoriUrl))
         i += 1
     return result
 
@@ -72,27 +81,47 @@ def bookScraper(url):
     """Récupère les information sur la page produit et retourne une list"""
 
     response = requests.get(url)
-    universal_product_code = ""
-    title = "#content_inner > article > div.row > div.col-sm-6.product_main > h1::text"
-    price_including_tax = ""
-    price_excluding_tax = ""
-    number_available = ""
-    product_description = ""
-    category = ""
-    review_rating = ""
-    image_url = ""
-    """Selector(text=response.text).css(universal_product_code).get(), Selector(text=response.text).css(title).get(), Selector(text=response.text).css(price_including_tax).get(), Selector(text=response.text).css(price_excluding_tax).get(), Selector(text=response.text).css(number_available).get(), Selector(text=response.text).css(product_description).get(), Selector(text=response.text).css(category).get(), Selector(text=response.text).css(review_rating).get(), Selector(text=response.text).css(image_url).get(),"""
+    universal_product_code = "article > table tr:nth-child(1) > td::text"
+    title = "div .product_main h1::text"
+    price_including_tax = "#content_inner > article > table tr:nth-child(4) > td::text"
+    price_excluding_tax = "#content_inner > article > table tr:nth-child(3) > td::text"
+    number_available = "#content_inner > article > div.row > div.col-sm-6.product_main > p.instock.availability"
+    product_description = "#content_inner > article > p::text"
+    category = "#default > div > div > ul > li:nth-child(3) > a::text"
+    review_rating = "article > table tr:nth-child(7) > td::text"
+    image_url = "div > div > div > img::attr(src)"
+
     return [
         url,
-        Selector(text=response.text).css(title).get()
+        Selector(text=response.text).css(universal_product_code).get(),
+        Selector(text=response.text).css(title).get(),
+        Selector(text=response.text).css(price_including_tax).get(),
+        Selector(text=response.text).css(price_excluding_tax).get(),
+        re.search(r'[+-]?\b[0-9]+\b', Selector(text=response.text).css(number_available).get()).group(0),
+        Selector(text=response.text).css(product_description).get(),
+        Selector(text=response.text).css(category).get(),
+        Selector(text=response.text).css(review_rating).get(),
+        formatUrl(Selector(text=response.text).css(image_url).get())
     ]
 
-def booksIteration(listBooks):
+
+def createCSV(data, categoriName):
+    """Crée un fichier csv à partir de la List de List 'data' nommé par la variable 'categoriName',
+    si le fichier existe déjà il sera remplacé"""
+
+    header = [ "product_page_url", "universal_ product_code (upc)", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url", ]
+    csv = pd.DataFrame(data, columns=header)
+    csv.to_csv(categoriName + '.csv')
+
+
+
+def booksIteration(listBooks, categoriUrl):
     """Fait un csv avec les url de la list passé en parametre"""
-
+    categoriName = categoriUrl.split("/")[3].split("_")[0]
+    data = []
     for bookUrl in listBooks:
-        print(bookScraper(formatUrl(bookUrl)))
-
+        data.append(bookScraper(formatUrl(bookUrl)))
+        createCSV(data, categoriName)
 
 def main():
     url = "https://books.toscrape.com/index.html"
@@ -101,8 +130,6 @@ def main():
     listCategoryUrl = categoriList(response)
     for categoriUrl in listCategoryUrl:
         resultCategori = allCategoryUrl(categoriUrl)
-        booksIteration(resultCategori)
-
-
+        booksIteration(resultCategori, categoriUrl)
 
 main()
