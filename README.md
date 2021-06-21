@@ -32,4 +32,4 @@ Votre répertoire ressemblera à ceci :
 
 ## Démarrage
 
-Pour enlacer le script entrez la commande ``python3 bot_books_to_scrape.py``
+Pour exécuter le script entrez la commande ``python3 bot_books_to_scrape.py``
