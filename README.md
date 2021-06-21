@@ -16,10 +16,15 @@ Pour réaliser le scriping de l'ensemble des livres du site, il est préférable
 ### Installation
 
 Executez la commande ``gcl https://github.com/gdanj/P2_OC_Bot_Scraper.git`` pour commencé.
+
 Ensuite ouvrer repertoire créé ``cd P2_OC_Bot_Scraper``
+
 Créez un environnement virtuel python ``python3 -m venv env``
+
 Activez l'environnement virtuel ``source env/bin/activate``
+
 Intallez les dépendance du programme ``pip install -r requirements.txt``
+
 Votre répertoire ressemblera à ceci :
 ``ls
 bot_books_to_scrape.py  env  README.md  requirements.txt``
