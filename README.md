@@ -1,7 +1,7 @@
 # Bot Scraper Projet 2
 
 Ce script réalisé en python et permet de scraper les informations du site https://books.toscrape.com/.
-Un CSV contenant les informations du lire sera créé pour chaque catégorie.
+Un CSV contenant les informations d'un livre par ligne sera créé pour chaque catégorie.
 
 ## Pour commencer
 
